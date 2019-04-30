@@ -23,4 +23,24 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.post('/oauth', async (req, res) => {
+  try {
+    let user = req.body;
+    if (!user.name || !user.email) {
+      res.status(400).json({ message: "please fill in all fields" });
+    } else {
+      const id = await db('usersOAuth').insert(user).returning("id");
+      if (id > 0) {
+        let {token, name, email} = user;
+        res.status(200).json({ token, name, email });  
+      } else {
+        res.status(500).json({ message: "Pick a new username please" })
+      }
+
+    }
+  } catch (error) {
+    res.status(500).json({ message: "internal server error", error: error });
+  }
+});
+
 module.exports = router;
